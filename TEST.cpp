@@ -1,0 +1,91 @@
+#include <iostream>
+#include <iomanip> //contains funciton for floating point numbers
+
+
+//Set function defintions
+void showBalance(double balance);
+double deposit();
+double withdraw(double balance);
+
+//main body
+int main()
+{
+	double balance = 0; //define variable defualts
+	int choice = 0;
+
+	do
+	{
+		std::cout << "******************\n"; //UI for welsome screen
+		std::cout << "Enter Your Choice:\n";
+		std::cout << "******************\n";
+		std::cout << "1. Show Balance\n";
+		std::cout << "2. Deposit Money\n";
+		std::cout << "3. Withdraw Money\n";
+		std::cout << "4. Exit\n";
+		std::cin >> choice; //allow user to input
+
+		
+		switch (choice) //switch between user options
+		{
+		case 1: showBalance(balance);//show output of the balance
+			break;
+		case 2: balance += deposit();//add input of deposit to balance
+			    showBalance(balance);
+			break;
+		case 3:balance -= withdraw(balance);
+			   showBalance(balance);
+			break;
+		case 4: std::cout << "Thanks For Visiting!\n";
+			break;
+		default: std::cout << "Invalid Choice\n";
+		}
+	} while (choice != 4);
+		
+	return 0;
+}
+void showBalance(double balance)
+{
+	std::cout << "Your Balance is: $" << std::setprecision(2) << std::fixed << balance << '\n';//set precision allows passing in decimal places = 2, then fix it
+}
+double deposit()
+{
+	double amount = 0;
+
+	std::cout << "Enter Amount To Be Deposited: ";
+	std::cin >> amount;
+
+	if (amount > 0)
+	{
+      return amount;
+	}
+	else
+	{
+		std::cout << "That's Not A Valid Amount: \n ";
+		return 0;
+	}
+	
+}
+double withdraw(double balance)
+{
+	double amount = 0;
+	std::cout << "Enter Amount To Be Withdrawn: ";
+	std::cin >> amount;
+
+	if (amount > balance)
+	{
+		std::cout << "Insufficient Funds\n";
+		return 0;
+
+	}
+	else if (amount < 0)
+	{
+		std::cout << "That's Not A Valid Amount\n";
+		return 0;
+	}
+	else
+	{
+		return amount;
+	}
+		
+	return amount;
+}
