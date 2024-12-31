@@ -1,0 +1,82 @@
+import pandas as pd
+
+
+file_path = r'C:/Users/30123071/PycharmProjects/dataset.csv'
+
+
+df = pd.read_csv(file_path)
+
+
+values = df['dataset'].tolist()
+
+
+# values = df['random_numbers'].tolist()
+
+
+# Constant time: 0(1)
+def get_first_item(items): # Define a function that takes a list of items as input
+    return items[0]  # Return the first item from the list
+
+
+
+
+# Linear time: 0(n)
+def find_item(items, target):  # Define a function that takes a list and a target item
+    for item in items: # Loop through each item in a list
+        if item == target: # If a current item matches the target
+            return True # Return true
+    return False  # If no match is found, return false
+
+
+
+
+# Quadratic time: 0(n^2)
+def bubble_sort(items): # Define a function that takes a list of items
+    for i in range(len(items)): # Loop through each item in the list
+        for j in range(len(items) - 1 ): # For each item loop through the list again
+            if items[j] > items[j + 1]: # If the current item is greater than the next item
+                items[j], items[j + 1] = items[j + 1], items[j] # swap the items
+    return items # return the sorted list
+
+
+
+
+# Logarithmic time 0(log n)
+def binary_search(items, target): # Define a function that takes a sorted list and a target item
+    low = 0 # Set the initial low point of the search to the first index of the list
+    high = len(items) - 1 # Set the initial high point of the search to the last index of the list
+
+
+    while low <= high: # While the low point is less than or equal to the high point
+        mid = (low + high) // 2 # Calculate the midpoint of the search
+        guess = items[mid] # Guess that the target is the midpoint of the search
+        if guess == target: # If the guess is correct
+            return mid # Return the index of the pass
+        if guess > target: # If the guess is too high
+            high = mid - 1 # Move the high point to one less than the midpoint
+        else: # If the guess is too low
+            low = mid + 1 # Move the lowpoint to one less than the midpoint
+    return None # If the target is not found return home
+
+
+items = [5, 3, 8, 6, 1, 9]
+target = 1000
+
+
+# Test get_first_item function
+# print(get_first_item(items))
+
+
+# Test find_item function
+# print(find_item(items, target))
+
+
+# Test bubble_sort function
+print(bubble_sort(items))
+
+
+# For binary_Search, the list should be sorted
+sorted_items = sorted(items)
+print(binary_search(sorted_items, target))
+
+
