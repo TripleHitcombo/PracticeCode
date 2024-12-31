@@ -1,0 +1,215 @@
+import pygame  # pygame library
+import random  # random int
+import os  # access os
+
+
+pygame.init()  # initialise pygame
+pygame.mixer.init()  # initialise sounds
+
+
+click_sound = pygame.mixer.Sound("button.wav") # find wav file for button click
+win_sound = pygame.mixer.Sound("ding.wav") # find wav file for win sound
+music_sound = pygame.mixer.Sound("music.wav") # find wav for background music
+
+
+click_sound.set_volume(0.5)
+win_sound.set_volume(0.7)
+music_sound.set_volume(0.1)  # set volume for sounds
+
+
+music_channel = pygame.mixer.Channel(1)
+click_channel = pygame.mixer.Channel(2)
+win_channel = pygame.mixer.Channel(3) # set seperate channels for different wav files
+
+
+if not music_channel.get_busy():  # Check if the channel is already playing music
+    music_channel.play(music_sound, loops=-1) # play background music on a loop
+
+
+
+
+class Button: # create class button
+    def __init__(self, color, x, y, width, height, text=''): #define the parameters set below
+        self.color = color
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.text = text
+
+
+    def draw(self, screen, outline=None): #define the screen size
+        if outline: # sets parameters for button sizes
+            pygame.draw.rect(screen, outline, (self.x - 2, self.y - 2, self.width + 4, self.height + 4), 0)
+        pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height), 0)
+        if self.text != '': # sets text size for texts inside buttons
+            font = pygame.font.SysFont('comicans', 60)
+            text = font.render(self.text, 1, (0, 0, 0))
+            screen.blit(text, (
+            self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
+
+
+    def isOver(self, pos): # defines the end of the game function
+        return self.x < pos[0] < self.x + self.width and self.y < pos[1] < self.y + self.height
+
+
+
+
+def card_value(rank): # defines card ranks
+    if rank == '01':  # Ace
+        return 11
+    elif rank in ['11', '12', '13']:  # Face cards (Jack, Queen, King)
+        return 10
+    else:
+        return int(rank) # in   t other numbers that are not ace or face cards
+
+
+
+
+def calculate_score(cards): # return the sum of the cards in each hand
+    return sum(card_value(rank) for rank, suit in cards)
+
+
+
+
+# New variable for state management
+current_state = "menu" # state for main menu
+winner_text = "" # text for which player won
+show_winner = False
+card_images = {}  # def card images
+suits = ['c', 'd', 'h', 's']  # def card suits
+ranks = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13']  # def card rankings
+
+
+# Load all card images
+for suit in suits:
+    for rank in ranks:
+        image_path = os.path.join("cards", f"{suit}{rank}.png")  # find file path for images
+        original_image = pygame.image.load(image_path)
+        scaled_image = pygame.transform.scale(original_image, (112, 150))  # set image size
+        card_images[(rank, suit)] = scaled_image # scale image to UI
+
+
+# Initialize deck and shuffle
+deck = [(rank, suit) for suit in suits for rank in ranks]  # create the deck
+random.shuffle(deck)  # shuffle the deck
+
+
+# Game configuration
+num_players = 2  # set number of players
+cards_per_player = 5  # set numbers of cards in hand
+players = {}  # def players
+
+
+
+
+def deal_cards(): # hand out cards to players
+    global deck, players, winner_text, show_winner # shows the variable for this function are defined elsewhere
+    deck = [(rank, suit) for suit in suits for rank in ranks] # create new deck of cards
+    random.shuffle(deck) # shuffle deck
+    players = {i: [deck.pop() for _ in range(cards_per_player)] for i in range(num_players)} # distribute cards
+    show_winner = False # if no winner run false
+    winner_text = "" # display winner and clear results
+
+
+
+
+# Determine the winner based on scores
+def determine_winner():
+    global winner_text # allows winner text to be updated
+    scores = {player: calculate_score(cards) for player, cards in players.items()} # stores player score
+    winner = max(scores, key=scores.get) # use max function to get highe    st score
+    winner_text = f'Player {winner + 1} Wins with {scores[winner]} points!' # update winner text and increment
+
+
+
+
+# Pygame setup
+screen_width = 1200  # set screen width
+screen_height = 800  # set screen height
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Card Dealing Simulator")  # title of the game
+
+
+# Create Buttons, colour values, screen size and title
+startButton = Button((0, 100, 255), 400, 150, 400, 100, 'Start')
+howToButton = Button((128, 0, 128), 400, 300, 400, 100, 'How To Play')
+quitButton = Button((255, 255, 50), 400, 450, 400, 100, 'Quit')
+shuffleButton = Button((100, 100, 255), 700, 650, 400, 100, 'Shuffle')
+quitButton2 = Button((255, 0, 0), 700, 550, 400, 100, 'Quit')
+
+
+# Main loop
+running = True
+while running:
+    pos = pygame.mouse.get_pos() # get position of the mouse
+    music_sound.play()
+    for event in pygame.event.get():  # Run game
+        if event.type == pygame.QUIT:
+            running = False  # Quit game if pygame.QUIT
+        if event.type == pygame.MOUSEBUTTONDOWN:  # When the mouse is clicked
+            click_channel.play(click_sound) # Play sound for button being clicked
+            if current_state == "menu":
+                if startButton.isOver(pos):
+                    current_state = "game"
+                    deal_cards()  # Initial shuffle and deal on start
+                elif howToButton.isOver(pos):
+                    current_state = "how_to_play"
+                elif quitButton.isOver(pos):
+                    running = False  # End game if quit button is pressed
+            elif current_state == "game":
+                if shuffleButton.isOver(pos):
+                    deal_cards()  # Reset and reshuffle
+                    determine_winner()  # Check the value and determine winner
+                    show_winner = True  # Display winner text
+                    win_channel.play(win_sound)  # Play win sound
+                elif quitButton2.isOver(pos):
+                    running = False  # End game if quit is pressed
+            elif current_state == "how_to_play":  # Run how to play and show text
+                if quitButton2.isOver(pos):
+                    running = False  # End game when quit is pressed
+
+
+    screen.fill((0, 128, 0))  # fill the UI
+
+
+    if current_state == "menu": # buttons shown at main menu
+        startButton.draw(screen, (0, 0, 0))
+        howToButton.draw(screen, (0, 0, 0))
+        quitButton.draw(screen, (0, 0, 0))
+    elif current_state == "game":
+        # Draw shuffle and quit buttons
+        shuffleButton.draw(screen, (0, 0, 0))
+        quitButton2.draw(screen, (0, 0, 0))
+        # Render logic
+        card_width, card_height = 112, 150 # size for card images
+        space_between_cards = 10 # gap between cards
+        initial_x = 20
+        initial_y = 20
+        y_offset = card_height + 40 # position of cards
+        for player, cards in players.items():
+            x_offset = 0
+            for card in cards:
+                screen.blit(card_images[card], (initial_x + x_offset, initial_y + (player * y_offset)))
+                x_offset += card_width + space_between_cards
+
+
+        # Show the winner
+        if show_winner: # when showing the winner
+            font = pygame.font.SysFont('comicsans', 40) # text for winner
+            winner_surface = font.render(winner_text, 1, (255, 255, 0))
+            screen.blit(winner_surface, (50, screen_height - 100))  # Move the text a bit left
+
+
+    elif current_state == "how_to_play":
+        screen.fill((0, 128, 128)) # fill screen for how to play state
+        quitButton2.draw(screen, (0, 0, 0)) # quite button posiiton
+        font = pygame.font.SysFont('comicsans', 40)
+        text = font.render('Press shuffle and the winning hand will be displayed!', 1, (0, 0, 0))
+        screen.blit(text, (screen_width / 2 - text.get_width() / 2, screen_height / 2 - text.get_height() / 2))
+
+
+    pygame.display.flip() # displays any changes made when clicking
+
+
+pygame.quit()  # quit game
