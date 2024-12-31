@@ -1,95 +1,203 @@
-#include <stdio.h>
-#include <tchar.h>
-#include <string>
-#include <conio.h>
-#include <iostream>
+#include <stdio.h> //This header file defines input/output operations. Imports many variables.
+#include <tchar.h> //Allows the input of single characters.
+#include <string> //Allows the input of multiple characters to form words.
+#include <conio.h> //This console input/output header allows the cin and cout functions.
+#include <iostream> //This standard input/output stream open an object oriented library that allows input/output function.
+#include <windows.h> //This accesses the WindowsAPI for declarations and functions specifically for Windows Operating system.
 
 
-using namespace std;
 
 
-void DisplayGrid();
+using namespace std; //This access the C++ standard formatting. Allows for naming and calling of variables and functions.
+
+
+void DisplayGrid(); //These voids are used to create functions to be called later.
 void DisplayInput();
-void FillSquare(int row, int col);
+void FillSquare(int row, int col); //In this void, integers are created to give a numercial value to a specific part of this function.
 void CheckInput();
 void CheckStatus();
 void Init();
 
 
-const int ROWS = 3;
+
+
+int  mainMenu(); //These integers are created as there will be an input from a player.
+int  howToPlay();
+
+
+
+
+const int ROWS = 3; //These constants are used because the rows and colums will never change, the constant locks that value in.
 const int COLS = 3;
-char grid[ROWS][COLS];
-int filledSquares = 0;
-char input = '  ';
+char grid[ROWS][COLS]; 
+int filledSquares = 0; //The next few lines are used to say the square the player is on is true and the squares the player isn't on is false.
+char input = '  ';     
 int currentPlayer = 1;
 
 
-int main()
+
+
+int menuChoice; //These integers are made to give players the ability to input.
+string playerOne = "  ";
+string playerTwo = "  ";
+
+
+
+
+
+
+int main() //This integer comprises of the main code block.
 {
-	Init();
 
 
-	do
+	system("color 3f"); //This line of code changes the background colour of the application. 3f is the colour code for light blue.
+
+
+	PlaySound(L"faiLSound.wav", NULL, SND_FILENAME | SND_SYNC); //This function is used to find the .wav file that has the desired sound with SND_FILENAME. SND_SYNC is used to play the sound synchronously. NULL is used to end the sound.
+	                                                            //To ensure this works the input of winmm.lib is needed.
+
+
+	bool runProg = true; //This bool is used to define whether something is true or not. In this case it is used to say the program is running.
+
+
+	cout << "\t\t" << "--------------------------------------------------- " << endl; 
+	cout << "\t\t" << " |  XX    XX                        dd   OOOOO     |" << endl;
+	cout << "\t\t" << " |   XX  XX    aa  aa  nn nnn       dd  OO   OO    |" << endl;
+	cout << "\t\t" << " |    XXXX    aa  aaa  nnn  nn  dddddd  OO   OO    |" << endl; //These couts are used to print a message to the console, which is a visual interface welcoming the player
+	cout << "\t\t" << " |   XX  XX  aa  aaa   nn   nn  dd  dd  OO   OO    |" << endl; //The "\t" is used to add a small gap of an empty character, the actual visuals are in the quotation marks and endl moves onto the next line
+	cout << "\t\t" << " |  XX    XX  aaa aa   nn   nn  dddddd   OOOOO     |" << endl;  
+	cout << "\t\t" << "--------------------------------------------------- " << endl;
+	cout << "\t\t" << " | Welcome to Naughts and Crosses and not Zork!    |" << endl;
+	cout << "\t\t" << "--------------------------------------------------- " << endl;
+	cout << "\t\t"; system("pause");                                                   //This pause gives the system a moment of reprieve 
+	cout << "\t\t" << "--------------------------------------------------- " << endl;
+	cout << "\t\t" << " |Enter the name of player one                      " << endl;
+	cout << "\t\t" << " >>";
+	cin >> playerOne;                                                                 //The player is given the chance to input their name and cin allows data to be inputted to the console
+	cout << "\t\t" << " |Enter the name of player two                      " << endl;
+	cout << "\t\t" << " >>";
+	cin >> playerTwo;
+
+
+	Init(); //This is where the Init function is called
+
+
+	do                               //This do loop tells the system to do these functions until a condition is met
 	{
-		system("cls");
-		cout << "Welcome to Noughts and Crosses!" << endl;
-		DisplayGrid();
-		DisplayInput();
-		CheckInput();
-		CheckStatus();
+		mainMenu();                  //This calls the main menu function
+
+
+		switch (menuChoice)          //This begins a multitude of switch cases to do a number of functions in a certain order. 
+		{
+		case 1:
+			do
+			{
+				system("color 02");
+				system("cls");      //This clears the screen of any current commands and output. Essentially returns a value of 0 briefly
+				DisplayGrid();
+				DisplayInput();
+				CheckInput();
+				CheckStatus();
+				system("cls");
+			} while                //This while loop is active during the do loop and does something whilst the do loop is running until a condition is met
+				(toupper(input) != 'F'); //The toupper here ius for changing to upper case for a character. The != is used to represent not equals to and the && is the and operator
+			break;                 //This break completes an interation of a loop, allowing the loop to finish and move on. This breakpoint ensures a loop does what it needs to.
+
+
+		case 2:                    //This next switch case runs the how to play function
+			howToPlay();
+			break;
+
+
+		case 3:                    //This switch case checks if the game is running and if it isn't returns a value of 0, finishes the loop and closes the game
+			runProg = false;
+			return 0;
+			break;
+
+
+		default:
+			cout << "Please enter a valid choice" << endl; //This default is used to display a message is anything but the necessary inputs
+			
+
+
+		}
+	
+
+
+		
 
 
 	}
+	while (toupper(input) != 'F'); //This is another check to see if the person hasn't inputted the F key to end the game
 
 
-	while (toupper(input) != 'F');
+
+
+	return 0;
+
+
+	system("pause");
+
+
+	
 }
 
 
-void DisplayGrid()
+void DisplayGrid() //This section is for creating the layout for the visuals of the grid
 {
-		cout << grid[0][0] << "|" << grid[0][1] << '|' << grid[0][2] << endl;
-		cout << "-" << "|" << "-" << "|" << "-" << endl;
-		cout << grid[1][0] << "|" << grid[1][1] << '|' << grid[1][2] << endl;
-		cout << "-" << "|" << "-" << "|" << "-" << endl;
-		cout << grid[2][0] << "|" << grid[2][1] << '|' << grid[2][2] << endl;
-		cout << endl;
+	cout << grid[0][0] << "|" << grid[0][1] << '|' << grid[0][2] << endl;
+	cout << "-" << "|" << "-" << "|" << "-" << endl;
+	cout << grid[1][0] << "|" << grid[1][1] << '|' << grid[1][2] << endl;
+	cout << "-" << "|" << "-" << "|" << "-" << endl;
+	cout << grid[2][0] << "|" << grid[2][1] << '|' << grid[2][2] << endl;
+	cout << endl;
 
 
 }
 
 
-void DisplayInput()
+void DisplayInput() //This void is for the function that shows the player what will happen when they press the buttons. 
 {
-		cout << " Player " << currentPlayer << " it's your go!" << endl;
-		cout << "Enter the key as shown below to correspond with the grid!" << endl;
-		cout << endl;
-		cout << "Q" << "|" << "W" << "|" << "E" << endl;
-		cout << "-" << "|" << "-" << "|" << "-" << endl;
-		cout << "A" << "|" << "S" << "|" << "D" << endl;
-		cout << "-" << "|" << "-" << "|" << "-" << endl;
-		cout << "Z" << "|" << "A" << "|" << "C" << endl;
+	if (currentPlayer == 1) //This if statement is activate when the game is.
+	{
+		cout << "t\t|      " << playerOne << " it's your turn [your piece ix X]             |" //This first declaration from the if statement is for player 1 to input their choice
+			;
+	}
+	else
+	{
+		cout << "t\t|      " << playerTwo << " it's your turn [your piece ix O]             |" //Player 2 is the only other option, the else statement is used because there is only 2 choices.
+			;
+	}
+
+
+	
+	cout << endl;
+	cout << "Q" << "|" << "W" << "|" << "E" << endl;
+	cout << "-" << "|" << "-" << "|" << "-" << endl;
+	cout << "A" << "|" << "S" << "|" << "D" << endl;   //This shows the players what to press to fill the square they wish to.
+	cout << "-" << "|" << "-" << "|" << "-" << endl;
+	cout << "Z" << "|" << "X" << "|" << "C" << endl;
 
 
 }
 
 
-void FillSquare(int row, int col)
+void FillSquare(int row, int col) //This function is made to check whether a square is filled and give players the ability to actually fill a square
 {
 	if (grid[row][col] != ' ')
 	{
-		cout << "That square is filled, please try again" << endl;
+		cout << "That square is filled, please try again" << endl; //If the player inputs something other than what is requested, the CheckInput fucntion is called to ensure the right thing is inputted
 		CheckInput;
 	}
 	else
 	{
 		if (currentPlayer == 1)
-			grid[row][col] = 'X';
+			grid[row][col] = 'X'; //This else statement allows the game to continue as it should
 		else
 			grid[row][col] = 'O';
 
 
-		filledSquares++;
+		filledSquares++; //The incrementor keeps filling the squares as it should
 	}
 }
 static void CheckInput()
@@ -99,7 +207,7 @@ static void CheckInput()
 
 	if (cin.fail())
 	{
-		cout << "Invalid Character, try again!" << endl;
+		cout << "Invalid Character, try again!" << endl; //This static void is for when something incorrect is inputted. Because any incorrect input will call this function, making it static means this will never change
 		CheckInput();
 	}
 
@@ -113,7 +221,7 @@ static void CheckInput()
 	case 'W': FillSquare(0, 1); break;
 	case 'E': FillSquare(0, 2); break;
 	case 'A': FillSquare(1, 0); break;
-	case 'S': FillSquare(1, 1); break;
+	case 'S': FillSquare(1, 1); break; //These switch cases ensure the button pressed fills the right square
 	case 'D': FillSquare(1, 2); break;
 	case 'Z': FillSquare(2, 0); break;
 	case 'X': FillSquare(2, 1); break;
@@ -122,7 +230,7 @@ static void CheckInput()
 
 	default:
 	{
-		cout << "Invalid Character, try again!" << endl;
+		cout << "Invalid Character, try again!" << endl; //Calls the CheckInput function when something incorrect is inputted
 		CheckInput();
 	}
 	break;
@@ -131,11 +239,11 @@ static void CheckInput()
 static void CheckStatus()
 {
 	char xo = 'X';
-	if (currentPlayer == 2)
+	if (currentPlayer == 2) //This initialises the character xo as X for player 1, but the else statement changes that to O for when player 2 is active
 		xo = 'O';
 
 
-	bool inPlay = true;
+	bool inPlay = true; //This bool is called to determine if the game is running
 
 
 	if
@@ -146,7 +254,7 @@ static void CheckStatus()
 
 
 			grid[0][0] == xo && grid[1][0] == xo && grid[2][0] == xo ||
-			grid[0][1] == xo && grid[1][1] == xo && grid[2][1] == xo ||
+			grid[0][1] == xo && grid[1][1] == xo && grid[2][1] == xo ||  //This whole code block determines who wins
 			grid[0][2] == xo && grid[1][2] == xo && grid[2][2] == xo ||
 
 
@@ -156,29 +264,30 @@ static void CheckStatus()
 
 
 	{
-		cout << "Player " << currentPlayer << "wins!" << endl;
+		cout << "Player " << currentPlayer << "wins!" << endl; //This displayes the winner
 		inPlay = false;
 	}
 
 
-	else if (filledSquares == ROWS * COLS)
+	else if (filledSquares == ROWS * COLS) //This is when the game is a draw
 	{
 		cout << "It's a draw!" << endl;
 		inPlay = false;
 	}
 
 
-	if (!inPlay)
+	if (!inPlay) //! is used not say if the game is not in play
 	{
+		PlaySound(L"faiLSound.wav", NULL, SND_FILENAME | SND_SYNC);
 		DisplayGrid();
-		Init;
-		cout << "Play again? Any key. F to quit." << endl;
+		Init();
+		cout << "Play again? Any key. F to quit." << endl; //This gives the player the option to play again or not
 		cin >> input;
 	}
 	else
 	{
 		if (currentPlayer == 1)
-			currentPlayer = 2;
+			currentPlayer = 2;   //This keeps the game running as normal 
 		else
 			currentPlayer = 1;
 	}
@@ -193,9 +302,77 @@ static void Init()
 
 	for (int row = 0; row < ROWS; row++)
 	{
-		for (int col = 0; col < COLS; col++)
-		{
-			grid[row][col] = '  ';
+		for (int col = 0; col < COLS; col++)  //This section resets the variables by setting each grid space to a blank space.
+		{                                     // It uses constants for rows and columns to keep the loop going
+			grid[row][col] = ' ';
 		}
 	}
 }
+
+
+
+
+
+
+
+
+int mainMenu()
+{
+	system("cls");
+	cout << "\t\t" << "--------------------------------------------------- " << endl;
+	cout << "\t\t" << "|                Welcome to the game                " << endl;
+	cout << "\t\t\t\t" << playerOne << " and " << playerTwo << endl;
+	cout << "\t\t" << "|                1. Play a game                     " << endl; //This displays a menu to the player and gives them options and the ability to choose those options
+	cout << "\t\t" << "|                2. How to play                     " << endl;
+	cout << "\t\t" << "|                3. Quit the game                   " << endl;
+	cout << "\t\t" << "--------------------------------------------------- " << endl;
+	cout << "\t\t" << ">>";
+	cin >> menuChoice;
+
+
+	return menuChoice;
+}
+
+
+int howToPlay()
+{
+	system("cls");
+	cout << "\t\t" << "------------------------------------------------- " << endl;
+	cout << "\t\t" << "|This is the game of naughts and crosses the aim |" << endl;
+	cout << "\t\t" << "|of the game is to place your piece on the board |" << endl;
+	cout << "\t\t" << "|in a pattern of three, like the examples there  |" << endl;
+	cout << "\t\t" << "|are eight winning conditions. The first to meet |" << endl;
+	cout << "\t\t" << "|any of these possibilities is the winner!       |" << endl;
+	cout << "\t\t" << "|Horizontal                                      |" << endl;
+	cout << "\t\t" << "| | 1 | 2 | 3 |/| |   |   |   |/| |   |   |   |  | " << endl;
+	cout << "\t\t" << "| ------------   --------------  --------------- | " << endl;
+	cout << "\t\t" << "| |   |   |   |/| | 1 | 2 | 3 |/| |   |   |   |  | " << endl;
+	cout << "\t\t" << "| ------------   --------------  --------------- | " << endl;
+	cout << "\t\t" << "| |   |   |   |/| |   |   |   |/| | 1 | 2 | 3 |  | " << endl;
+	cout << "\t\t" << "| ---------------------------------------------- | " << endl;
+	cout << "\t\t" << "|Vertical                                        | " << endl;
+	cout << "\t\t" << "| | 1 |   |   |/| |   | 1 |   |/| |   |   | 1 |  | " << endl;
+	cout << "\t\t" << "| ------------   --------------  --------------- | " << endl;
+	cout << "\t\t" << "| | 2 |   |   |/| |   | 2 |   |/| |   |   | 2 |  | " << endl;
+	cout << "\t\t" << "| ------------   --------------  --------------- | " << endl;
+	cout << "\t\t" << "| | 3 |   |   |/| |   | 3 |   |/| |   |   | 3 |  | " << endl; //This displays a interface to the player showcasing the rules of the game and lets the player to go back to the menu or quit
+	cout << "\t\t" << "| ---------------------------------------------- | " << endl;
+	cout << "\t\t" << "|Diaganol                                        | " << endl;
+	cout << "\t\t" << "| | 1 |   |   |/| |           |/| |   |   | 1 |  | " << endl;
+	cout << "\t\t" << "| ------------   --------------  --------------- | " << endl;
+	cout << "\t\t" << "| |   | 2 |   |/| |           |/| |   | 2 |   |  | " << endl;
+	cout << "\t\t" << "| ------------   --------------  --------------- | " << endl;
+	cout << "\t\t" << "| |   |   | 3 |/| |           |/| | 3 |   |   |  | " << endl;
+	cout << "\t\t" << "| ---------------------------------------------- | " << endl;
+	cout << "\t\t" << "| A tie                                          | " << endl;
+	cout << "\t\t" << "| when none of these conditions are met          | " << endl;
+	cout << "\t\t" << "| will end in a tie                              | " << endl;
+	cout << "\t\t" << "| ---------------------------------------------- | " << endl;
+	cout << "\t\t" << "| Press any key to return back to the menu       | " << endl;
+	cout << "\t\t" << "| Press f to quit                                | " << endl;
+	cout << "\t\t" << "| ---------------------------------------------- | " << endl;
+	cout << "t\t\" << >>";
+	cin >> input;
+	return input;
+}
+
