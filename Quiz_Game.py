@@ -45,3 +45,5 @@ else:
 
 print ("You got " + str(score) + "/5 questions corrct")
 
+#Area for improvement: Categorise questions and add more, add leaderbpard, add UI with images and sounds, deduct points on incorrect questions. 
+
